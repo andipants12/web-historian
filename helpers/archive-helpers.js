@@ -53,25 +53,15 @@ exports.addUrlToList = function(target, callback) {
 };
 
 exports.isUrlArchived = function(target, callback) {
-  console.log('target', target);
   fs.stat(exports.paths.archivedSites + '/' + target, function(err, stats) {
-    console.log(!!err, stats);
-    if (err) {
-      console.log('err', err);
-    } else {
-      callback(err, true);
-    }
+    callback(null, !!stats);
   });
-  // fs.readFile(exports.paths.archivedSites, 'utf8', function(err, data) {
-  //   if (err) {
-  //     console.log('err', err);
-  //   }
-  //   console.log('data', data);
-  //   callback(err, _.contains(data, target));
-  // });
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(urls) {
+  _.each(urls, function (value) {
+    fs.writeFile(exports.paths.archivedSites + '/' + value);
+  });
 };
 
 
