@@ -19,13 +19,17 @@ var handleGetFile = function(filePath, req, res) {
 
 exports.handleRequest = function (req, res) {
   // var invalidUrl = false;
+  console.log('Processing ' + req.method + ' request: ' + req.url);
   if (req.method === 'GET') {
     // console.log('requrl', req.url);
     var archivedFile = archive.paths.archivedSites + req.url;
     header['Content-Type'] = 'text/html';
     res.writeHead(200, header);
+    console.log('meow', req.url);
     if (req.url === '/') {
       handleGetFile(__dirname + '/public/index.html', req, res);
+    } else if (req.url === '/styles.css' || req.url === '/loading.html') {
+      handleGetFile(__dirname + '/public' + req.url, req, res);
     } else {
       fs.stat(archivedFile, function(err, stats) {
         if (err) {

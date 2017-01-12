@@ -29,10 +29,8 @@ exports.readListOfUrls = function(callback) {
   fs.readFile(exports.paths.list, 'utf8', function(err, data) {
     if (err) {
       console.log('err', err);
-    } else {
-      data = data.split('\n');
-      callback(err, data);
     }
+    callback(err, data.split('\n'));
   });
 };
 
@@ -41,8 +39,7 @@ exports.isUrlInList = function(target, callback) {
     if (err) {
       console.log('err', err);
     }
-    data = data.split('\n');
-    callback(err, _.contains(data, target));
+    callback(err, _.contains(data.split('\n'), target));
   });
 };
 
@@ -54,6 +51,9 @@ exports.addUrlToList = function(target, callback) {
 
 exports.isUrlArchived = function(target, callback) {
   fs.stat(exports.paths.archivedSites + '/' + target, function(err, stats) {
+    if (err) {
+      console.log('err', err);
+    }
     callback(null, !!stats);
   });
 };
