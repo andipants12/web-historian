@@ -25,18 +25,54 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(callBack) {
-  return callBack();
+exports.readListOfUrls = function(callback) {
+  fs.readFile(exports.paths.list, 'utf8', function(err, data) {
+    if (err) {
+      console.log('err', err);
+    } else {
+      data = data.split('\n');
+      callback(err, data);
+    }
+  });
 };
 
-exports.isUrlInList = function() {
+exports.isUrlInList = function(target, callback) {
+  fs.readFile(exports.paths.list, 'utf8', function(err, data) {
+    if (err) {
+      console.log('err', err);
+    }
+    data = data.split('\n');
+    callback(err, _.contains(data, target));
+  });
 };
 
-exports.addUrlToList = function() {
+exports.addUrlToList = function(target, callback) {
+  fs.writeFile(exports.paths.list, target, 'utf8', function(err) {
+    callback(err);
+  });
 };
 
-exports.isUrlArchived = function() {
+exports.isUrlArchived = function(target, callback) {
+  console.log('target', target);
+  fs.stat(exports.paths.archivedSites + '/' + target, function(err, stats) {
+    console.log(!!err, stats);
+    if (err) {
+      console.log('err', err);
+    } else {
+      callback(err, true);
+    }
+  });
+  // fs.readFile(exports.paths.archivedSites, 'utf8', function(err, data) {
+  //   if (err) {
+  //     console.log('err', err);
+  //   }
+  //   console.log('data', data);
+  //   callback(err, _.contains(data, target));
+  // });
 };
 
 exports.downloadUrls = function() {
 };
+
+
+
