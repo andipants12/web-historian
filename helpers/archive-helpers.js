@@ -48,6 +48,8 @@ exports.addUrlToList = function(target, callback) {
     callback(err);
   });
 };
+// test if addUrlToList over writes current archive list
+// urls in the site.txt are adding with proper format
 
 exports.isUrlArchived = function(target, callback) {
   fs.stat(exports.paths.archivedSites + '/' + target, function(err, stats) {
@@ -58,10 +60,11 @@ exports.isUrlArchived = function(target, callback) {
   });
 };
 
-exports.downloadUrls = function(urls) {
+exports.downloadUrls = function(urls, callback) {
   _.each(urls, function (value) {
     fs.writeFile(exports.paths.archivedSites + '/' + value);
   });
+  callback();
 };
 
 

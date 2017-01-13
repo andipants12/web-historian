@@ -1,6 +1,7 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var fs = require('fs');
+var fetcher = require('../workers/htmlfetcher');
 // require more modules/folders here!
 var header = {};
 
@@ -22,10 +23,9 @@ exports.handleRequest = function (req, res) {
   console.log('Processing ' + req.method + ' request: ' + req.url);
   if (req.method === 'GET') {
     // console.log('requrl', req.url);
-    var archivedFile = archive.paths.archivedSites + req.url;
     header['Content-Type'] = 'text/html';
     res.writeHead(200, header);
-    console.log('meow', req.url);
+    var archivedFile = archive.paths.archivedSites + '/' + req.url;
     if (req.url === '/') {
       handleGetFile(__dirname + '/public/index.html', req, res);
     } else if (req.url === '/styles.css' || req.url === '/loading.html') {
@@ -41,19 +41,47 @@ exports.handleRequest = function (req, res) {
       });
     }
   } else if (req.method === 'POST') {
+    // Check to see if that websites exists in archives/sites
+      // if yes, redirect to webpage
+      // else, send them to loading page
     var dataCollection = '';
     res.writeHead(302);
     req.on('data', function(chunk) {
       dataCollection += chunk;
     }).on('end', function() {
-      dataCollection = dataCollection.slice(4) + '\n';
-      fs.writeFile(archive.paths.list, dataCollection, function(err, data) {
-        if (err) {
-          console.log('error', err);
+      dataCollection = dataCollection.slice(4);
+      archive.isUrlArchived(dataCollection, function(err, stats) {
+        if (stats) {
+          handleGetFile(archive.paths.archivedSites + '/' + dataCollection, req, res);
         } else {
-          res.end();
+          handleGetFile(archive.paths.siteAssets + '/loading.html', req, res);
+          archive.isUrlInList(dataCollection, function (err, data) {
+            if (!data) {
+              archive.addUrlToList(dataCollection, function(err) {
+                console.log('adding url to file!');
+                fetcher();
+                console.log('fetching');
+              });
+            }
+          });
         }
       });
     });
+
+    // updates the sites index
+    // var dataCollection = '';
+    // res.writeHead(302);
+    // req.on('data', function(chunk) {
+    //   dataCollection += chunk;
+    // }).on('end', function() {
+    //   dataCollection = dataCollection.slice(4) + '\n';
+    //   fs.writeFile(archive.paths.list, dataCollection, function(err, data) {
+    //     if (err) {
+    //       console.log('error', err);
+    //     } else {
+    //       res.end();
+    //     }
+    //   });
+    // });
   }
 };
